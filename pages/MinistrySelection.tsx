@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserMinistries } from '../services/storage';
+import { getUserMinistries, deleteMinistry } from '../services/storage';
 import { Ministry } from '../types';
-import { Loader2, Plus, LogOut, Users, Check, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Loader2, Plus, LogOut, Users, Check, ArrowRight, ShieldCheck, Trash2 } from 'lucide-react';
 
 const MinistrySelection: React.FC = () => {
   const { user, selectMinistry, signOut } = useAuth();
@@ -27,6 +27,24 @@ const MinistrySelection: React.FC = () => {
   const handleSelect = async (ministryId: string) => {
       await selectMinistry(ministryId);
       navigate('/');
+  };
+
+  const handleDelete = async (e: React.MouseEvent, ministry: Ministry) => {
+      e.stopPropagation();
+      if (!user) return;
+      
+      const confirmMessage = `Tem certeza que deseja EXCLUIR PERMANENTEMENTE o ministério "${ministry.name}"? Essa ação não pode ser desfeita e removerá o acesso de todos os membros.`;
+      
+      if (window.confirm(confirmMessage)) {
+          try {
+              setLoading(true);
+              await deleteMinistry(ministry.id);
+              await loadMinistries(); // Refresh list
+          } catch (error) {
+              alert("Erro ao excluir ministério. Tente novamente.");
+              setLoading(false);
+          }
+      }
   };
 
   if (loading) return (
@@ -56,12 +74,12 @@ const MinistrySelection: React.FC = () => {
                     </div>
                 ) : (
                     ministries.map(ministry => (
-                        <button
+                        <div
                             key={ministry.id}
                             onClick={() => handleSelect(ministry.id)}
-                            className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl flex items-center justify-between group hover:border-accent-500 dark:hover:border-accent-500 transition-all shadow-sm"
+                            className="relative w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl flex items-center justify-between group hover:border-accent-500 dark:hover:border-accent-500 transition-all shadow-sm cursor-pointer"
                         >
-                            <div className="text-left">
+                            <div className="text-left flex-1">
                                 <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors">{ministry.name}</h3>
                                 <div className="flex items-center gap-4 mt-1">
                                     <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
@@ -76,10 +94,24 @@ const MinistrySelection: React.FC = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="bg-slate-50 dark:bg-zinc-800 p-2 rounded-lg text-slate-400 dark:text-zinc-500 group-hover:bg-accent-600 group-hover:text-white transition-colors">
-                                <ArrowRight size={20} />
+                            
+                            <div className="flex items-center gap-2">
+                                {/* Only owner can delete */}
+                                {ministry.ownerId === user?.uid && (
+                                    <button 
+                                        onClick={(e) => handleDelete(e, ministry)}
+                                        className="p-2 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors z-10"
+                                        title="Excluir Ministério"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
+                                
+                                <div className="bg-slate-50 dark:bg-zinc-800 p-2 rounded-lg text-slate-400 dark:text-zinc-500 group-hover:bg-accent-600 group-hover:text-white transition-colors">
+                                    <ArrowRight size={20} />
+                                </div>
                             </div>
-                        </button>
+                        </div>
                     ))
                 )}
             </div>
