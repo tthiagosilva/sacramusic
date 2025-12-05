@@ -20,7 +20,8 @@ const SetlistList: React.FC = () => {
   const loadSetlists = async () => {
     if (!currentMinistry) return;
     const list = await getSetlists(currentMinistry.id);
-    list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Sort Ascending (Oldest -> Newest)
+    list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     setSetlists(list);
     setLoading(false);
   };
