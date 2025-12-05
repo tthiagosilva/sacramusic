@@ -65,6 +65,16 @@ export const createMinistry = async (name: string, owner: UserProfile): Promise<
   return ministry;
 };
 
+export const updateMinistry = async (ministryId: string, data: Partial<Ministry>): Promise<void> => {
+  try {
+    const ref = doc(db, MINISTRIES_COLLECTION, ministryId);
+    await setDoc(ref, data, { merge: true });
+  } catch (error) {
+    console.error("Error updating ministry:", error);
+    throw error;
+  }
+};
+
 export const joinMinistryByCode = async (code: string, user: UserProfile): Promise<Ministry | null> => {
   const q = query(collection(db, MINISTRIES_COLLECTION), where("inviteCode", "==", code));
   const snapshot = await getDocs(q);
