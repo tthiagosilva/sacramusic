@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Music, ListMusic, Home, CalendarDays, Moon, Sun, LogOut, User as UserIcon, Copy, Check, Users } from 'lucide-react';
+import { Music, ListMusic, Home, CalendarDays, Moon, Sun, LogOut, User as UserIcon, Copy, Check, Users, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
@@ -114,12 +114,12 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
                                     </button>
 
                                     <Link 
-                                        to="/ministry/members" 
+                                        to="/ministry" 
                                         onClick={() => setShowProfileMenu(false)}
                                         className="w-full flex items-center justify-center gap-2 text-xs bg-accent-600 hover:bg-accent-700 text-white rounded px-2 py-1.5 transition-colors font-bold"
                                     >
-                                        <Users size={12} />
-                                        Gerenciar Equipe
+                                        <LayoutDashboard size={12} />
+                                        Meu Ministério
                                     </Link>
                                 </div>
                             )}
