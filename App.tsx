@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import MinistrySetup from './pages/MinistrySetup';
+import MinistrySelection from './pages/MinistrySelection';
 import SongList from './pages/SongList';
 import SongEditor from './pages/SongEditor';
 import SetlistList from './pages/SetlistList';
@@ -33,17 +34,17 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/login" replace />;
   }
 
+  // If logged in but no ministry selected, go to selection
   if (!currentMinistry) {
-    return <Navigate to="/setup" replace />;
+    return <Navigate to="/select-ministry" replace />;
   }
 
   return <>{children}</>;
 };
 
 const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user, currentMinistry, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-    // Se estiver carregando o perfil, exibe spinner para não redirecionar errado
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 dark:bg-black flex items-center justify-center">
@@ -53,12 +54,8 @@ const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
     }
 
     if (user) {
-        // LÓGICA DE REDIRECIONAMENTO PÓS-LOGIN
-        if (currentMinistry) {
-            return <Navigate to="/ministry" replace />;
-        } else {
-            return <Navigate to="/setup" replace />;
-        }
+        // ALWAYS redirect to selection page after login to let user choose
+        return <Navigate to="/select-ministry" replace />;
     }
     
     return <>{children}</>;
@@ -77,6 +74,10 @@ function App() {
           
           <Route path="/setup" element={
               <MinistrySetup />
+          } />
+
+          <Route path="/select-ministry" element={
+              <MinistrySelection />
           } />
 
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
