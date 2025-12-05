@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { createMinistry, joinMinistryByCode } from '../services/storage';
-import { Plus, Users, ArrowRight, Music, Loader2 } from 'lucide-react';
+import { Plus, Users, ArrowRight, Music, Loader2, ArrowLeft } from 'lucide-react';
 
 const MinistrySetup: React.FC = () => {
-  const { userProfile, refreshProfile, signOut } = useAuth();
+  const { userProfile, refreshProfile, signOut, selectMinistry } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<'menu' | 'create' | 'join'>('menu');
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -16,8 +18,11 @@ const MinistrySetup: React.FC = () => {
     
     try {
         setLoading(true);
-        await createMinistry(name, userProfile);
+        const newMinistry = await createMinistry(name, userProfile);
         await refreshProfile();
+        // Automatically select the new ministry and go to dashboard
+        await selectMinistry(newMinistry.id);
+        navigate('/ministry');
     } catch (error) {
         console.error("Erro ao criar ministério:", error);
         alert("Ocorreu um erro ao criar o ministério. Tente novamente.");
@@ -35,6 +40,9 @@ const MinistrySetup: React.FC = () => {
         const result = await joinMinistryByCode(code.toUpperCase(), userProfile);
         if (result) {
             await refreshProfile();
+            // Automatically select and go
+            await selectMinistry(result.id);
+            navigate('/ministry');
         } else {
             alert("Código inválido ou ministério não encontrado.");
         }
@@ -82,7 +90,15 @@ const MinistrySetup: React.FC = () => {
                     </div>
                 </button>
 
-                <button onClick={() => signOut()} className="block w-full text-center text-sm text-slate-400 hover:text-slate-600 mt-6">
+                {/* Voltar para seleção de ministérios (se houver) */}
+                {(userProfile?.ownedMinistries?.length || 0) > 0 && (
+                     <button onClick={() => navigate('/select-ministry')} className="w-full py-3 flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 mt-2">
+                        <ArrowLeft size={16} />
+                        Voltar para meus ministérios
+                    </button>
+                )}
+
+                <button onClick={() => signOut()} className="block w-full text-center text-sm text-slate-400 hover:text-slate-600 mt-2">
                     Sair da conta
                 </button>
             </div>
