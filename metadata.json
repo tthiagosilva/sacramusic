@@ -1,0 +1,5 @@
+{
+  "name": "SacraMusic Manager",
+  "description": "Um aplicativo web limpo e responsivo para ministérios de música católica organizarem repertórios e visualizarem cifras/letras durante a missa.",
+  "requestFramePermissions": []
+}
