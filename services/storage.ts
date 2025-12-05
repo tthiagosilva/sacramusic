@@ -75,6 +75,15 @@ export const updateMinistry = async (ministryId: string, data: Partial<Ministry>
   }
 };
 
+export const deleteMinistry = async (ministryId: string): Promise<void> => {
+    try {
+        await deleteDoc(doc(db, MINISTRIES_COLLECTION, ministryId));
+    } catch (error) {
+        console.error("Error deleting ministry:", error);
+        throw error;
+    }
+};
+
 export const joinMinistryByCode = async (code: string, user: UserProfile): Promise<Ministry | null> => {
   const q = query(collection(db, MINISTRIES_COLLECTION), where("inviteCode", "==", code));
   const snapshot = await getDocs(q);
