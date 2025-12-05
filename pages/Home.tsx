@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Music, ListMusic, PlusCircle, CalendarDays, ArrowRight } from 'lucide-react';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 
 const Home: React.FC = () => {
+  const { currentMinistry, userProfile } = useAuth();
+
   return (
     <Layout>
       <div className="flex flex-col gap-8 py-4">
@@ -11,9 +14,11 @@ const Home: React.FC = () => {
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent-600 to-teal-800 dark:from-accent-900 dark:to-teal-950 p-8 text-white shadow-xl">
           <div className="relative z-10">
-            <h1 className="text-3xl font-serif font-bold mb-2">Bem-vindo</h1>
+            <h1 className="text-3xl font-serif font-bold mb-2">
+                {currentMinistry?.name || 'Bem-vindo'}
+            </h1>
             <p className="text-accent-100 opacity-90 max-w-md">
-              Organize seus repertórios, escalas e cifras para a Santa Missa com simplicidade e beleza.
+              Olá, {userProfile?.displayName?.split(' ')[0]}. Organize seus repertórios, escalas e cifras para a Santa Missa com simplicidade.
             </p>
           </div>
           <Music className="absolute -bottom-4 -right-4 w-32 h-32 text-white opacity-10 rotate-12" />
