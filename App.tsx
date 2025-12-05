@@ -16,6 +16,7 @@ import MusicianList from './pages/MusicianList';
 import ScheduleList from './pages/ScheduleList';
 import ScheduleEditor from './pages/ScheduleEditor';
 import MinistryMembers from './pages/MinistryMembers';
+import MinistryDashboard from './pages/MinistryDashboard';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, currentMinistry, loading } = useAuth();
@@ -62,6 +63,7 @@ function App() {
 
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           
+          <Route path="/ministry" element={<ProtectedRoute><MinistryDashboard /></ProtectedRoute>} />
           <Route path="/ministry/members" element={<ProtectedRoute><MinistryMembers /></ProtectedRoute>} />
 
           {/* Songs Routes */}
