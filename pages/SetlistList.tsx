@@ -36,7 +36,9 @@ const SetlistList: React.FC = () => {
 
   const formatDate = (isoDate: string) => {
     try {
-      const d = new Date(isoDate);
+      // FIX: Append T12:00:00 to prevent timezone shift (UTC vs Local)
+      // This ensures the date is interpreted as noon local time, staying on the correct day
+      const d = new Date(isoDate + 'T12:00:00');
       return {
         day: d.toLocaleDateString('pt-BR', { day: '2-digit' }),
         month: d.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', ''),
