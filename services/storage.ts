@@ -56,11 +56,11 @@ export const createMinistry = async (name: string, owner: UserProfile): Promise<
 
   await setDoc(newMinistryRef, ministry);
 
-  // Update user profile
-  await updateDoc(doc(db, USERS_COLLECTION, owner.uid), {
+  // Update user profile - Use setDoc with merge to be safe against missing documents
+  await setDoc(doc(db, USERS_COLLECTION, owner.uid), {
     currentMinistryId: ministry.id,
     ownedMinistries: arrayUnion(ministry.id)
-  });
+  }, { merge: true });
 
   return ministry;
 };
@@ -80,9 +80,9 @@ export const joinMinistryByCode = async (code: string, user: UserProfile): Promi
   });
 
   // Update user profile
-  await updateDoc(doc(db, USERS_COLLECTION, user.uid), {
+  await setDoc(doc(db, USERS_COLLECTION, user.uid), {
     currentMinistryId: ministry.id
-  });
+  }, { merge: true });
 
   return ministry;
 };
