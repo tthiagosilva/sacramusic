@@ -68,6 +68,9 @@ const SetlistView: React.FC = () => {
       return null;
   }
 
+  // Format date helper with TZ fix
+  const displayDate = setlist.date ? new Date(setlist.date + 'T12:00:00').toLocaleDateString('pt-BR') : '---';
+
   return (
     <Layout>
       <div className="flex flex-col gap-6">
@@ -90,7 +93,7 @@ const SetlistView: React.FC = () => {
             <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-2">{setlist.name}</h1>
             <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
                 <Calendar size={16} />
-                <span>{new Date(setlist.date).toLocaleDateString('pt-BR')}</span>
+                <span>{displayDate}</span>
                 {setlist.type && setlist.category === SetlistCategory.MISSA && (
                     <>
                         <span className="mx-2 text-slate-300 dark:text-zinc-700">•</span>
