@@ -103,6 +103,18 @@ export const getMinistryById = async (id: string): Promise<Ministry | undefined>
   return snap.exists() ? ({...snap.data(), id: snap.id} as Ministry) : undefined;
 }
 
+export const getUserMinistries = async (uid: string): Promise<Ministry[]> => {
+    try {
+        // Query ministries where the 'members' array contains the user's UID
+        const q = query(collection(db, MINISTRIES_COLLECTION), where("members", "array-contains", uid));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Ministry));
+    } catch (error) {
+        console.error("Error fetching user ministries:", error);
+        return [];
+    }
+};
+
 export const getMinistryMembers = async (memberIds: string[]): Promise<UserProfile[]> => {
     try {
         const promises = memberIds.map(uid => getDoc(doc(db, USERS_COLLECTION, uid)));
