@@ -13,21 +13,35 @@ const MinistrySetup: React.FC = () => {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !userProfile) return;
-    setLoading(true);
-    await createMinistry(name, userProfile);
-    await refreshProfile();
-    setLoading(false);
+    
+    try {
+        setLoading(true);
+        await createMinistry(name, userProfile);
+        await refreshProfile();
+    } catch (error) {
+        console.error("Erro ao criar ministério:", error);
+        alert("Ocorreu um erro ao criar o ministério. Tente novamente.");
+    } finally {
+        setLoading(false);
+    }
   };
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !userProfile) return;
-    setLoading(true);
-    const result = await joinMinistryByCode(code.toUpperCase(), userProfile);
-    if (result) {
-        await refreshProfile();
-    } else {
-        alert("Código inválido ou ministério não encontrado.");
+    
+    try {
+        setLoading(true);
+        const result = await joinMinistryByCode(code.toUpperCase(), userProfile);
+        if (result) {
+            await refreshProfile();
+        } else {
+            alert("Código inválido ou ministério não encontrado.");
+        }
+    } catch (error) {
+        console.error("Erro ao entrar no ministério:", error);
+        alert("Ocorreu um erro ao tentar entrar. Verifique sua conexão.");
+    } finally {
         setLoading(false);
     }
   };
