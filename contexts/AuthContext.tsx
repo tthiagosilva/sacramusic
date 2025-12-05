@@ -17,6 +17,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  selectMinistry: (ministryId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -92,6 +93,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentMinistry(null);
   };
 
+  const selectMinistry = async (ministryId: string) => {
+      if (!user) return;
+      const ministry = await getMinistryById(ministryId);
+      if (ministry) {
+          setCurrentMinistry(ministry);
+          // Update profile to remember selection
+          if (userProfile) {
+              const updatedProfile = { ...userProfile, currentMinistryId: ministryId };
+              setUserProfile(updatedProfile);
+              await saveUserProfile(updatedProfile);
+          }
+      }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -100,7 +115,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading, 
       signInWithGoogle, 
       signOut,
-      refreshProfile
+      refreshProfile,
+      selectMinistry
     }}>
       {!loading && children}
     </AuthContext.Provider>
