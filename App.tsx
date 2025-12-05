@@ -41,8 +41,26 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user } = useAuth();
-    if (user) return <Navigate to="/" replace />;
+    const { user, currentMinistry, loading } = useAuth();
+
+    // Se estiver carregando o perfil, exibe spinner para não redirecionar errado
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-50 dark:bg-black flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-accent-600" />
+            </div>
+        );
+    }
+
+    if (user) {
+        // LÓGICA DE REDIRECIONAMENTO PÓS-LOGIN
+        if (currentMinistry) {
+            return <Navigate to="/ministry" replace />;
+        } else {
+            return <Navigate to="/setup" replace />;
+        }
+    }
+    
     return <>{children}</>;
 }
 
