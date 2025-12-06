@@ -1,5 +1,6 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getSongById, getSetlistById } from '../services/storage';
 import { Song, MassMoment, SetlistCategory } from '../types';
 import { ArrowLeft, ArrowRight, Music, Type, Moon, Sun, Minus, Plus, RefreshCw, Loader2 } from 'lucide-react';
@@ -33,8 +34,8 @@ const transposeChord = (chord: string, steps: number) => {
 
 const PerformanceView: React.FC = () => {
   const { setlistId, songId } = useParams<{ setlistId?: string; songId: string }>();
-  const [searchParams] = useSearchParams();
-  const indexParam = searchParams.get('idx'); 
+  const location = useLocation();
+  const indexParam = new URLSearchParams(location.search).get('idx'); 
 
   const navigate = useNavigate();
   const [song, setSong] = useState<Song | null>(null);
