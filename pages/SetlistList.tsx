@@ -1,17 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Plus, ListMusic, Star, Mic2, BookOpen, Loader2, Trash2, Edit } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, ListMusic, Star, Mic2, BookOpen, Loader2, Trash2 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { getSetlists, deleteSetlist } from '../services/storage';
 import { Setlist, SetlistCategory } from '../types';
 
 const SetlistList: React.FC = () => {
-  const { currentMinistry } = useAuth();
+  const { currentMinistry, userProfile } = useAuth();
   const [setlists, setSetlists] = useState<Setlist[]>([]);
   const [activeCategory, setActiveCategory] = useState<SetlistCategory | 'Todos'>('Todos');
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentMinistry) loadSetlists();
@@ -20,7 +20,6 @@ const SetlistList: React.FC = () => {
   const loadSetlists = async () => {
     if (!currentMinistry) return;
     const list = await getSetlists(currentMinistry.id);
-    // Sort Ascending (Oldest -> Newest)
     list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     setSetlists(list);
     setLoading(false);
@@ -37,8 +36,6 @@ const SetlistList: React.FC = () => {
 
   const formatDate = (isoDate: string) => {
     try {
-      // FIX: Append T12:00:00 to prevent timezone shift (UTC vs Local)
-      // This ensures the date is interpreted as noon local time, staying on the correct day
       const d = new Date(isoDate + 'T12:00:00');
       return {
         day: d.toLocaleDateString('pt-BR', { day: '2-digit' }),
@@ -79,17 +76,20 @@ const SetlistList: React.FC = () => {
     [SetlistCategory.APRESENTACAO]: setlists.filter(s => getCategory(s) === SetlistCategory.APRESENTACAO).length,
   };
 
+  const canEdit = userProfile?.isSubscriber;
+
   return (
     <Layout>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-slate-100">Repertórios</h1>
-          <Link to="/setlists/new" className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-700 dark:hover:bg-accent-600 text-white p-3 rounded-full shadow-lg transition-transform active:scale-95">
-            <Plus size={24} />
-          </Link>
+          {canEdit && (
+            <Link to="/setlists/new" className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-700 dark:hover:bg-accent-600 text-white p-3 rounded-full shadow-lg transition-transform active:scale-95">
+                <Plus size={24} />
+            </Link>
+          )}
         </div>
 
-        {/* Filter Tabs */}
         <div className="flex overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 gap-2 no-scrollbar">
           {['Todos', ...Object.values(SetlistCategory)].map((cat) => (
              <button
@@ -136,7 +136,6 @@ const SetlistList: React.FC = () => {
                     <div className="relative z-10 pointer-events-none">
                         <div className="flex justify-between items-start gap-4">
                             
-                            {/* Date Badge */}
                             <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl min-w-[3.5rem] h-[3.5rem]">
                                 <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase">{dateObj.month}</span>
                                 <span className="text-xl font-bold text-slate-800 dark:text-slate-200 leading-none">{dateObj.day}</span>
@@ -153,14 +152,16 @@ const SetlistList: React.FC = () => {
                                 <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{setlist.type || 'Sem tipo definido'}</p>
                             </div>
 
-                            <button 
-                                type="button"
-                                onClick={(e) => handleDelete(e, setlist.id)}
-                                className="pointer-events-auto z-20 p-2 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
-                                title="Excluir"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                            {canEdit && (
+                                <button 
+                                    type="button"
+                                    onClick={(e) => handleDelete(e, setlist.id)}
+                                    className="pointer-events-auto z-20 p-2 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
+                                    title="Excluir"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            )}
                         </div>
                         <div className="mt-3 pt-3 border-t border-slate-50 dark:border-zinc-800 flex justify-between items-center text-xs text-slate-400 dark:text-zinc-500">
                             <span>{(cat === SetlistCategory.MISSA) 
