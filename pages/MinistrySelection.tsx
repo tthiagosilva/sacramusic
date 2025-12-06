@@ -1,12 +1,13 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserMinistries, deleteMinistry } from '../services/storage';
 import { Ministry } from '../types';
-import { Loader2, Plus, LogOut, Users, Check, ArrowRight, ShieldCheck, Trash2 } from 'lucide-react';
+import { Loader2, Plus, LogOut, Users, Check, ArrowRight, ShieldCheck, Trash2, Lock } from 'lucide-react';
 
 const MinistrySelection: React.FC = () => {
-  const { user, selectMinistry, signOut } = useAuth();
+  const { user, userProfile, selectMinistry, signOut } = useAuth();
   const navigate = useNavigate();
   const [ministries, setMinistries] = useState<Ministry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,8 +97,8 @@ const MinistrySelection: React.FC = () => {
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                {/* Only owner can delete */}
-                                {ministry.ownerId === user?.uid && (
+                                {/* Only owner AND SUBSCRIBER can delete */}
+                                {ministry.ownerId === user?.uid && userProfile?.isSubscriber && (
                                     <button 
                                         onClick={(e) => handleDelete(e, ministry)}
                                         className="p-2 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors z-10"
