@@ -41,6 +41,15 @@ export const saveUserProfile = async (profile: UserProfile): Promise<void> => {
   await setDoc(doc(db, USERS_COLLECTION, profile.uid), profile, { merge: true });
 };
 
+// HELPER FOR TESTING SUBSCRIPTION
+export const toggleUserSubscription = async (uid: string, isSubscriber: boolean): Promise<void> => {
+    try {
+        await setDoc(doc(db, USERS_COLLECTION, uid), { isSubscriber }, { merge: true });
+    } catch (error) {
+        console.error("Error toggling subscription:", error);
+    }
+};
+
 export const createMinistry = async (name: string, owner: UserProfile): Promise<Ministry> => {
   const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   const newMinistryRef = doc(collection(db, MINISTRIES_COLLECTION));
