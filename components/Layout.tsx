@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Music, ListMusic, Home, CalendarDays, Moon, Sun, LogOut, User as UserIcon, Copy, Check, Users, LayoutDashboard, ArrowLeftRight } from 'lucide-react';
+import { Music, ListMusic, Home, CalendarDays, Moon, Sun, LogOut, User as UserIcon, Copy, Check, Users, LayoutDashboard, ArrowLeftRight, Star } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { toggleUserSubscription } from '../services/storage';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,7 +12,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
   const location = useLocation();
-  const { currentMinistry, userProfile, signOut } = useAuth();
+  const { currentMinistry, userProfile, signOut, refreshProfile } = useAuth();
   const [isDark, setIsDark] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -44,6 +46,14 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const toggleSub = async () => {
+    if (!userProfile) return;
+    await toggleUserSubscription(userProfile.uid, !userProfile.isSubscriber);
+    await refreshProfile();
+    setShowProfileMenu(false);
+    alert(userProfile.isSubscriber ? 'Modo de teste: Você agora é Usuário Gratuito.' : 'Modo de teste: Você agora é Assinante Premium.');
   };
 
   const isActive = (path: string) => 
@@ -97,7 +107,12 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
                         <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)}></div>
                         <div className="absolute right-0 top-12 w-64 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-slate-200 dark:border-zinc-800 p-4 z-50 animate-in fade-in slide-in-from-top-2">
                             <div className="mb-4 pb-4 border-b border-slate-100 dark:border-zinc-800">
-                                <p className="font-bold text-slate-800 dark:text-slate-100 truncate">{userProfile?.displayName}</p>
+                                <div className="flex justify-between items-start mb-1">
+                                    <p className="font-bold text-slate-800 dark:text-slate-100 truncate flex-1">{userProfile?.displayName}</p>
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${userProfile?.isSubscriber ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
+                                        {userProfile?.isSubscriber ? 'PREMIUM' : 'FREE'}
+                                    </span>
+                                </div>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">{userProfile?.email}</p>
                             </div>
                             
@@ -132,6 +147,14 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
                                     </Link>
                                 </div>
                             )}
+
+                            <button 
+                                onClick={toggleSub}
+                                className="w-full flex items-center gap-3 p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors mb-1 text-xs"
+                            >
+                                <Star size={16} className={userProfile?.isSubscriber ? "fill-amber-400 text-amber-400" : ""} />
+                                <span>{userProfile?.isSubscriber ? 'Cancelar Assinatura (Simular)' : 'Virar Premium (Simular)'}</span>
+                            </button>
 
                             <button 
                                 onClick={toggleTheme}
