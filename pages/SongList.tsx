@@ -1,11 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Search, Music2, Loader2, Edit, Trash2 } from 'lucide-react';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 import { getSongs, deleteSong } from '../services/storage';
 import { Song } from '../types';
 
 const SongList: React.FC = () => {
+  const { userProfile } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -22,7 +25,7 @@ const SongList: React.FC = () => {
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.preventDefault(); // Prevent opening the song
+    e.preventDefault();
     e.stopPropagation();
     
     if (window.confirm('Tem certeza que deseja excluir esta música?')) {
@@ -36,12 +39,11 @@ const SongList: React.FC = () => {
     return (
       song.title.toLowerCase().includes(term) || 
       song.lyrics.toLowerCase().includes(term) ||
-      song.moments.some(m => m.toLowerCase().includes(term)) || // Busca por momento (ex: Comunhão)
-      song.seasons.some(s => s.toLowerCase().includes(term))    // Busca por tempo (ex: Natal)
+      song.moments.some(m => m.toLowerCase().includes(term)) || 
+      song.seasons.some(s => s.toLowerCase().includes(term))
     );
   });
 
-  // Helper to color-code moments
   const getTagStyle = (moment: string) => {
     const m = moment.toLowerCase();
     if (m.includes('penitencial') || m.includes('quaresma')) return 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200 dark:border-purple-800';
@@ -50,18 +52,21 @@ const SongList: React.FC = () => {
     if (m.includes('entrada')) return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
     if (m.includes('comunhão') || m.includes('comunhao')) return 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border-rose-200 dark:border-rose-800';
     
-    // Default
     return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700';
   };
+
+  const canEdit = userProfile?.isSubscriber;
 
   return (
     <Layout>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-serif font-bold text-slate-800 dark:text-slate-100">Músicas</h1>
-          <Link to="/songs/new" className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-700 dark:hover:bg-accent-600 text-white p-3 rounded-full shadow-lg transition-transform active:scale-95">
-            <Plus size={24} />
-          </Link>
+          {canEdit && (
+            <Link to="/songs/new" className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-700 dark:hover:bg-accent-600 text-white p-3 rounded-full shadow-lg transition-transform active:scale-95">
+                <Plus size={24} />
+            </Link>
+          )}
         </div>
 
         <div className="relative">
@@ -92,7 +97,6 @@ const SongList: React.FC = () => {
                     key={song.id} 
                     className="relative group block bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-accent-500 dark:hover:border-accent-600 transition-all"
                 >
-                    {/* Alterado para apontar para a rota de Performance */}
                     <Link to={`/perform/song/${song.id}`} className="absolute inset-0 z-0" aria-label="Tocar música"></Link>
                     
                     <div className="relative z-10 flex justify-between items-start gap-3 pointer-events-none">
@@ -119,28 +123,30 @@ const SongList: React.FC = () => {
                         </div>
 
                         <div className="flex flex-col items-end gap-2 pointer-events-auto">
-                             <div className="flex gap-1 z-20 relative">
-                                <button 
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        navigate(`/songs/${song.id}`); // Link para edição
-                                    }}
-                                    className="p-2 text-slate-300 dark:text-zinc-600 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                                    title="Editar"
-                                >
-                                    <Edit size={18} />
-                                </button>
-                                <button 
-                                    type="button"
-                                    onClick={(e) => handleDelete(e, song.id)}
-                                    className="p-2 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
-                                    title="Excluir"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                             </div>
+                             {canEdit && (
+                                 <div className="flex gap-1 z-20 relative">
+                                    <button 
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            navigate(`/songs/${song.id}`); 
+                                        }}
+                                        className="p-2 text-slate-300 dark:text-zinc-600 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                        title="Editar"
+                                    >
+                                        <Edit size={18} />
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={(e) => handleDelete(e, song.id)}
+                                        className="p-2 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
+                                        title="Excluir"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                 </div>
+                             )}
                              <span className="bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-xs font-mono font-bold px-2.5 py-1.5 rounded-lg shadow-sm">
                                 {song.key}
                             </span>
