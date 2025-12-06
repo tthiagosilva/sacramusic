@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -7,7 +8,7 @@ import { getSchedules, getMusicians, deleteSchedule } from '../services/storage'
 import { Plus, Users, Calendar, Filter, ListMusic, User, Loader2, Trash2, Edit } from 'lucide-react';
 
 const ScheduleList: React.FC = () => {
-  const { currentMinistry } = useAuth();
+  const { currentMinistry, userProfile } = useAuth();
   const [schedules, setSchedules] = useState<ScheduleEntry[]>([]);
   const [musicians, setMusicians] = useState<Musician[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +94,8 @@ const ScheduleList: React.FC = () => {
     ? schedules.filter(sch => sch.assignments.some(a => a.musicianId === filterMusicianId))
     : schedules;
 
+  const canEdit = userProfile?.isSubscriber;
+
   return (
     <Layout>
       <div className="flex flex-col gap-6">
@@ -102,9 +105,11 @@ const ScheduleList: React.FC = () => {
             <Link to="/musicians" className="bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 p-3 rounded-full hover:bg-slate-300 dark:hover:bg-zinc-700 transition-colors" title="Gerenciar Músicos">
                <Users size={20} />
             </Link>
-            <Link to="/schedules/new" className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-700 dark:hover:bg-accent-600 text-white p-3 rounded-full shadow-lg transition-transform active:scale-95" title="Nova Escala">
-               <Plus size={20} />
-            </Link>
+            {canEdit && (
+                <Link to="/schedules/new" className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-700 dark:hover:bg-accent-600 text-white p-3 rounded-full shadow-lg transition-transform active:scale-95" title="Nova Escala">
+                    <Plus size={20} />
+                </Link>
+            )}
           </div>
         </div>
 
@@ -161,24 +166,26 @@ const ScheduleList: React.FC = () => {
                                       <div className="text-xs text-slate-400 dark:text-zinc-500 hidden sm:block mb-1 font-bold">{sch.time}</div>
                                       <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{sch.title}</h3>
                                   </div>
-                                  <div className="flex gap-1">
-                                      <button 
-                                          type="button"
-                                          onClick={() => navigate(`/schedules/edit/${sch.id}`)}
-                                          className="p-1.5 text-slate-300 dark:text-zinc-600 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded transition-colors"
-                                          title="Editar"
-                                      >
-                                          <Edit size={16} />
-                                      </button>
-                                      <button 
-                                          type="button"
-                                          onClick={() => handleDelete(sch.id)}
-                                          className="p-1.5 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded transition-colors"
-                                          title="Excluir"
-                                      >
-                                          <Trash2 size={16} />
-                                      </button>
-                                  </div>
+                                  {canEdit && (
+                                      <div className="flex gap-1">
+                                          <button 
+                                              type="button"
+                                              onClick={() => navigate(`/schedules/edit/${sch.id}`)}
+                                              className="p-1.5 text-slate-300 dark:text-zinc-600 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded transition-colors"
+                                              title="Editar"
+                                          >
+                                              <Edit size={16} />
+                                          </button>
+                                          <button 
+                                              type="button"
+                                              onClick={() => handleDelete(sch.id)}
+                                              className="p-1.5 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded transition-colors"
+                                              title="Excluir"
+                                          >
+                                              <Trash2 size={16} />
+                                          </button>
+                                      </div>
+                                  )}
                               </div>
 
                               <div className="space-y-2 mb-3">
