@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { createMinistry, joinMinistryByCode } from '../services/storage';
-import { Plus, Users, ArrowRight, Music, Loader2, ArrowLeft } from 'lucide-react';
+import { Plus, Users, ArrowRight, Music, Loader2, ArrowLeft, Lock } from 'lucide-react';
 
 const MinistrySetup: React.FC = () => {
   const { userProfile, refreshProfile, signOut, selectMinistry } = useAuth();
@@ -65,14 +66,28 @@ const MinistrySetup: React.FC = () => {
         {mode === 'menu' && (
             <div className="space-y-4">
                 <button 
-                    onClick={() => setMode('create')}
-                    className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 rounded-2xl flex items-center gap-4 hover:border-accent-500 dark:hover:border-accent-500 transition-all text-left group shadow-sm"
+                    onClick={() => {
+                        if (userProfile?.isSubscriber) {
+                            setMode('create');
+                        } else {
+                            alert('A criação de ministérios é exclusiva para Assinantes Premium. Utilize a opção "Entrar" se você foi convidado.');
+                        }
+                    }}
+                    className={`w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 rounded-2xl flex items-center gap-4 transition-all text-left group shadow-sm ${!userProfile?.isSubscriber ? 'opacity-70 grayscale' : 'hover:border-accent-500 dark:hover:border-accent-500'}`}
                 >
-                    <div className="bg-accent-100 dark:bg-accent-900/30 p-3 rounded-xl text-accent-600 dark:text-accent-400 group-hover:scale-110 transition-transform">
+                    <div className="bg-accent-100 dark:bg-accent-900/30 p-3 rounded-xl text-accent-600 dark:text-accent-400 group-hover:scale-110 transition-transform relative">
                         <Plus size={24} />
+                        {!userProfile?.isSubscriber && (
+                            <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 border border-white">
+                                <Lock size={10} className="text-white" />
+                            </div>
+                        )}
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100">Criar Novo Ministério</h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100">Criar Novo Ministério</h3>
+                            {!userProfile?.isSubscriber && <span className="text-[10px] bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 px-1.5 py-0.5 rounded text-slate-500">PREMIUM</span>}
+                        </div>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Sou o coordenador e quero criar um grupo.</p>
                     </div>
                 </button>
