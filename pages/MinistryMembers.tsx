@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -7,7 +8,7 @@ import { UserProfile } from '../types';
 import { ArrowLeft, Trash2, Crown, Copy, Check, User as UserIcon, Loader2 } from 'lucide-react';
 
 const MinistryMembers: React.FC = () => {
-  const { currentMinistry, user, refreshProfile } = useAuth();
+  const { currentMinistry, user, userProfile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [members, setMembers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,6 @@ const MinistryMembers: React.FC = () => {
             await removeMemberFromMinistry(currentMinistry.id, memberId);
             setMembers(prev => prev.filter(m => m.uid !== memberId));
             
-            // If user removed themselves (unlikely via this button, but possible logic)
             if (memberId === user?.uid) {
                 await refreshProfile();
                 navigate('/setup');
@@ -54,6 +54,8 @@ const MinistryMembers: React.FC = () => {
   };
 
   const isOwner = currentMinistry?.ownerId === user?.uid;
+  // To manage team, you must be owner AND subscriber
+  const canManage = isOwner && userProfile?.isSubscriber;
 
   return (
     <Layout>
@@ -117,7 +119,7 @@ const MinistryMembers: React.FC = () => {
                             </div>
 
                             {/* Actions */}
-                            {isOwner && member.uid !== user?.uid && (
+                            {canManage && member.uid !== user?.uid && (
                                 <button 
                                     onClick={() => handleRemoveMember(member.uid, member.displayName || 'Membro')}
                                     className="p-2 text-slate-300 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
