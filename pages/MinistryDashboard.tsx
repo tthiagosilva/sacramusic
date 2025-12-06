@@ -1,13 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { updateMinistry } from '../services/storage';
-import { Users, CalendarDays, ListMusic, Music, Copy, Check, Save, Loader2, Settings, ArrowRight } from 'lucide-react';
+import { Users, CalendarDays, ListMusic, Music, Copy, Check, Save, Loader2, Settings, ArrowRight, Lock } from 'lucide-react';
 
 const MinistryDashboard: React.FC = () => {
-  const { currentMinistry, user, refreshProfile } = useAuth();
-  const navigate = useNavigate();
+  const { currentMinistry, user, userProfile, refreshProfile } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState('');
@@ -43,6 +43,7 @@ const MinistryDashboard: React.FC = () => {
   };
 
   const isOwner = currentMinistry?.ownerId === user?.uid;
+  const canEdit = isOwner && userProfile?.isSubscriber;
 
   if (!currentMinistry) return null;
 
@@ -118,14 +119,18 @@ const MinistryDashboard: React.FC = () => {
                             className="flex-1 p-3 border border-slate-300 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-60"
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            disabled={!isEditing || !isOwner}
+                            disabled={!isEditing}
                         />
                         {isOwner && (
                             !isEditing ? (
                                 <button 
-                                    onClick={() => setIsEditing(true)}
-                                    className="px-6 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
+                                    onClick={() => {
+                                        if (canEdit) setIsEditing(true);
+                                        else alert('Recurso exclusivo para assinantes Premium.');
+                                    }}
+                                    className="px-6 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
                                 >
+                                    {!userProfile?.isSubscriber && <Lock size={14} className="opacity-50" />}
                                     Editar
                                 </button>
                             ) : (
