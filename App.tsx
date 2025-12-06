@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -72,39 +73,68 @@ function App() {
               </PublicOnlyRoute>
           } />
           
-          <Route path="/setup" element={
-              <MinistrySetup />
-          } />
+          <Route path="/setup" element={<MinistrySetup />} />
 
-          <Route path="/select-ministry" element={
-              <MinistrySelection />
-          } />
+          <Route path="/select-ministry" element={<MinistrySelection />} />
 
-          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          {/* Root */}
+          <Route path="/" element={
+              <ProtectedRoute><Home /></ProtectedRoute>
+          } />
           
-          <Route path="/ministry" element={<ProtectedRoute><MinistryDashboard /></ProtectedRoute>} />
-          <Route path="/ministry/members" element={<ProtectedRoute><MinistryMembers /></ProtectedRoute>} />
+          <Route path="/ministry/members" element={
+              <ProtectedRoute><MinistryMembers /></ProtectedRoute>
+          } />
+          <Route path="/ministry" element={
+              <ProtectedRoute><MinistryDashboard /></ProtectedRoute>
+          } />
 
           {/* Songs Routes */}
-          <Route path="/songs" element={<ProtectedRoute><SongList /></ProtectedRoute>} />
-          <Route path="/songs/new" element={<ProtectedRoute><SongEditor /></ProtectedRoute>} />
-          <Route path="/songs/:id" element={<ProtectedRoute><SongEditor /></ProtectedRoute>} />
+          <Route path="/songs/new" element={
+              <ProtectedRoute><SongEditor /></ProtectedRoute>
+          } />
+          <Route path="/songs/:id" element={
+              <ProtectedRoute><SongEditor /></ProtectedRoute>
+          } />
+          <Route path="/songs" element={
+              <ProtectedRoute><SongList /></ProtectedRoute>
+          } />
           
           {/* Setlists Routes */}
-          <Route path="/setlists" element={<ProtectedRoute><SetlistList /></ProtectedRoute>} />
-          <Route path="/setlists/new" element={<ProtectedRoute><SetlistEditor /></ProtectedRoute>} />
-          <Route path="/setlists/edit/:id" element={<ProtectedRoute><SetlistEditor /></ProtectedRoute>} />
-          <Route path="/setlists/:id" element={<ProtectedRoute><SetlistView /></ProtectedRoute>} />
+          <Route path="/setlists/new" element={
+              <ProtectedRoute><SetlistEditor /></ProtectedRoute>
+          } />
+          <Route path="/setlists/edit/:id" element={
+              <ProtectedRoute><SetlistEditor /></ProtectedRoute>
+          } />
+          <Route path="/setlists/:id" element={
+              <ProtectedRoute><SetlistView /></ProtectedRoute>
+          } />
+          <Route path="/setlists" element={
+              <ProtectedRoute><SetlistList /></ProtectedRoute>
+          } />
 
           {/* Schedules / Musicians Routes */}
-          <Route path="/musicians" element={<ProtectedRoute><MusicianList /></ProtectedRoute>} />
-          <Route path="/schedules" element={<ProtectedRoute><ScheduleList /></ProtectedRoute>} />
-          <Route path="/schedules/new" element={<ProtectedRoute><ScheduleEditor /></ProtectedRoute>} />
-          <Route path="/schedules/edit/:id" element={<ProtectedRoute><ScheduleEditor /></ProtectedRoute>} />
+          <Route path="/musicians" element={
+              <ProtectedRoute><MusicianList /></ProtectedRoute>
+          } />
+          <Route path="/schedules/new" element={
+              <ProtectedRoute><ScheduleEditor /></ProtectedRoute>
+          } />
+          <Route path="/schedules/edit/:id" element={
+              <ProtectedRoute><ScheduleEditor /></ProtectedRoute>
+          } />
+          <Route path="/schedules" element={
+              <ProtectedRoute><ScheduleList /></ProtectedRoute>
+          } />
 
           {/* Performance/Live View */}
-          <Route path="/perform/:setlistId/:songId" element={<ProtectedRoute><PerformanceView /></ProtectedRoute>} />
-          <Route path="/perform/song/:songId" element={<ProtectedRoute><PerformanceView /></ProtectedRoute>} />
+          <Route path="/perform/:setlistId/:songId" element={
+              <ProtectedRoute><PerformanceView /></ProtectedRoute>
+          } />
+          <Route path="/perform/song/:songId" element={
+              <ProtectedRoute><PerformanceView /></ProtectedRoute>
+          } />
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
