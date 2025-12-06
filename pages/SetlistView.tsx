@@ -1,6 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 import { getSetlistById, getSongById } from '../services/storage';
 import { Setlist, Song, MassMoment, SetlistCategory } from '../types';
 import { ArrowLeft, Edit, Calendar, Info, Mic2, Star, Loader2 } from 'lucide-react';
@@ -8,6 +10,7 @@ import { ArrowLeft, Edit, Calendar, Info, Mic2, Star, Loader2 } from 'lucide-rea
 const SetlistView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
   const [setlist, setSetlist] = useState<Setlist | null>(null);
   const [songMap, setSongMap] = useState<Record<string, Song>>({});
   const [loading, setLoading] = useState(true);
@@ -61,15 +64,14 @@ const SetlistView: React.FC = () => {
 
   if (!setlist) return <Layout><div className="text-center mt-10 text-slate-500 dark:text-slate-400">Repertório não encontrado.</div></Layout>;
 
-  // Icon based on category
   const CategoryIcon = () => {
       if (setlist.category === SetlistCategory.ADORACAO) return <Star className="w-4 h-4" />;
       if (setlist.category === SetlistCategory.APRESENTACAO) return <Mic2 className="w-4 h-4" />;
       return null;
   }
 
-  // Format date helper with TZ fix
   const displayDate = setlist.date ? new Date(setlist.date + 'T12:00:00').toLocaleDateString('pt-BR') : '---';
+  const canEdit = userProfile?.isSubscriber;
 
   return (
     <Layout>
@@ -79,9 +81,11 @@ const SetlistView: React.FC = () => {
             <ArrowLeft />
           </button>
           <div className="flex gap-2">
-            <button onClick={() => navigate(`/setlists/edit/${id}`)} className="text-accent-600 dark:text-accent-400 hover:text-accent-800 dark:hover:text-accent-300 p-2 bg-accent-50 dark:bg-accent-900/30 rounded-full transition-colors">
-              <Edit size={20} />
-            </button>
+            {canEdit && (
+                <button onClick={() => navigate(`/setlists/edit/${id}`)} className="text-accent-600 dark:text-accent-400 hover:text-accent-800 dark:hover:text-accent-300 p-2 bg-accent-50 dark:bg-accent-900/30 rounded-full transition-colors">
+                    <Edit size={20} />
+                </button>
+            )}
           </div>
         </div>
 
